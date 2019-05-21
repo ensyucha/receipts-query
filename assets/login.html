@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>发票查询-登录</title>
+    <script type="text/javascript" src="/assets/self/main.js"></script>
+</head>
+<body>
+    <div class="mdui-container login-container">
+        <div class="login-container-inner">
+            <div class="login-logo-center">
+                <img src="/assets/document/logo.png" alt="" class="login-logo">
+            </div>
+            <div class="mdui-textfield mdui-textfield-floating-label login-label-input">
+                <label class="mdui-textfield-label" for="input-username">账号</label>
+                <input id="input-username" class="mdui-textfield-input" name="username" />
+            </div>
+            <div class="mdui-textfield mdui-textfield-floating-label">
+                <label class="mdui-textfield-label" for="input-password">密码</label>
+                <input id="input-password" class="mdui-textfield-input" name="password" type="password" />
+            </div>
+            <button class="mdui-btn mdui-color-myself login-label-input" onclick="login()">登录</button>
+        </div>
+    </div>
+
+    <script>
+        $(document).keydown(function(event){
+            if(event.keyCode === 13){
+                login();
+            }
+        });
+    </script>
+</body>
+</html>

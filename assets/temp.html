@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>发票查询-本次查询结果</title>
+    <script type="text/javascript" src="/assets/self/main.js"></script>
+</head>
+<body>
+
+<div class="mdui-container temp-main-container">
+    <div class="receipts-container-border">
+        <div class="mdui-container">
+            <div class="mdui-row receipts-op-panel">
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                <div class="mdui-btn mdui-color-myself info-panel">
+                    本次查询结果概要如下，详细信息请进入归档中查看
+                </div>
+                <div class="mdui-btn mdui-color-red info-panel">
+                    查询成功会扣除额度并归档，查询失败不会扣除额度和归档
+                </div>
+                <div>
+                    <button class="mdui-btn mdui-color-pink temp-btn" onclick="toResult()">进入归档</button>
+                    <button class="mdui-btn mdui-color-pink temp-btn" onclick="toQuery()">返回查询</button>
+                    <button class="mdui-btn mdui-color-pink temp-btn" onclick="toLogout()">切换账号</button>
+                </div>
+            </div>
+
+            <table id="dg">
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let rows = initTemp({{ .TempResult }});
+
+    $('#dg').datagrid({
+        width:'1195px',
+        remoteSort: false,
+        rownumbers: true,
+        fitColumns:true,
+        pagination: true,
+        pageNumber: 1,
+        pageSize: 20,
+        pageList: [5,10,20,50,100,500,1000],
+        loadFilter: pagerFilter,
+        columns:[[
+            {field:'status',title:'查询状态',width:'180px',align:'center', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'respMsg',title:'验证结果',width:'180px',align:'center', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'fpdm',title:'发票代码',width:'160px',align:'center', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'fphm',title:'发票号码',width:'160px',align:'center', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'kprq',title:'开票日期',width:'160px',align:'center', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'bz',title:'不含税金额',width:'160px',align:'center', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'jym',title:'校验码后6位',width:'160px',align:'center', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+        ]],
+    }).datagrid('loadData', rows);
+</script>
+</body>
+</html>

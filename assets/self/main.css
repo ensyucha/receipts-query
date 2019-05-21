@@ -1,0 +1,133 @@
+body {
+    background-image: url(../document/background.png);
+}
+
+.receipts-container-border {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.receipts-op-panel {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items:center;
+}
+
+.receipts-op-panel-word {
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.query-show {
+    display: inline;
+}
+
+.query-hide {
+    display: none;
+}
+
+.result-show {
+    display: inline;
+}
+
+.result-hide {
+    display: none;
+}
+
+.mdui-textfield-input {
+    color: #0999bc !important;
+}
+
+.mdui-textfield-focus {
+    color: #0999bc !important;
+}
+
+.mdui-color-myself {
+    color: #fff !important;
+    background-color: #0999bc !important;
+}
+
+.info-panel {
+    cursor: default;
+    text-transform: capitalize
+}
+
+.dialog-title-color {
+    color:#0999bc
+}
+
+.login-container {
+    margin-top: 250px;
+    background-color: white;
+    width: 450px;
+    height:400px;
+    padding-top: 40px;
+    border-radius: 20px;
+}
+
+.login-container-inner {
+    margin:0 auto !important;
+    width:400px !important;
+}
+
+.login-label-input {
+    width:400px;
+    margin-top:30px;
+}
+
+.login-logo-center {
+    text-align: center;
+}
+
+.login-logo {
+    margin: 0 auto;
+    width:302px;
+}
+
+.query-hide-input {
+    display: none;
+}
+
+.query-main-container {
+    width: 2000px;
+}
+
+.temp-main-container {
+    width: 2000px;
+}
+
+.temp-btn {
+    margin: 0 auto;
+}
+
+.system-main-container {
+    width: 2000px;
+}
+
+.system-td-center {
+    width: 140px;
+    text-align: center !important;
+}
+
+.result-dialog-content {
+    color: #0999bc;
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.result-checkbox-label {
+    width:160px;
+}
+
+.my-success {
+    color:forestgreen !important;
+    font-weight: bold !important;
+}
+
+.my-failed {
+    color:#AD1457 !important;
+    font-weight: bold !important;
+}
+

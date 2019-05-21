@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>发票查询-查询</title>
+    <script type="text/javascript" src="/assets/self/main.js"></script>
+</head>
+<body>
+
+<input type="file" id="excel-file" class="query-hide-input">
+
+<div class="mdui-container query-main-container">
+    <div class="receipts-container-border">
+        <div class="mdui-container">
+            <div class="mdui-row receipts-op-panel">
+                <div>
+                    <div class="mdui-btn mdui-color-blue-grey-500 info-panel">
+                        {{ .NickName }} | {{ .Usage }} | 查询
+                    </div>
+                    <!-- <button class="mdui-btn mdui-color-orange-900" onclick="append()">添加发票数据</button>
+                    <button class="mdui-btn mdui-color-orange-900" onclick="removeit()">删除选中发票</button>
+                    <button class="mdui-btn mdui-color-orange-900" onclick="accept()">确定修改</button> -->
+                </div>
+                <div>
+                    <button class="mdui-btn mdui-color-myself" id="add-by-excel" onclick="addByExcel()">添加Excel数据</button>
+                    <a href="/assets/document/发票真伪查询模板.xlsm" class="mdui-btn mdui-color-myself">
+                        Excel模板下载
+                    </a>
+                </div>
+                <div>
+                    <button class="mdui-btn mdui-color-red" onclick="query({{ .Usage }})">查询</button>
+                    <button class="mdui-btn mdui-color-red" onclick="clearQueryData()">重置</button>
+                </div>
+                <div>
+                    <button class="mdui-btn mdui-color-pink" onclick="toResult()">进入归档</button>
+                    <button class="mdui-btn mdui-color-pink" onclick="showGuide('query.pdf')">使用说明</button>
+                    <button class="mdui-btn mdui-color-pink" onclick="toLogout()">切换账号</button>
+                </div>
+            </div>
+            <div class="mdui-row">
+                <table id="dg" class="easyui-datagrid">
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dgSelector = $('#dg');
+    let excelFileSelector = $("#excel-file");
+    let queryrows = [];
+
+    excelFileSelector.on("change", null, function(e) {
+        extractExcelData(e);
+    });
+
+    dgSelector.datagrid({
+        width:'1117px',
+        singleSelect: true,
+        remoteSort: false,
+        rownumbers: true,
+        loadData: queryrows,
+        // onClickRow: onClickRow,
+        pagination: true,
+        pageNumber: 1,
+        pageSize: 20,
+        pageList: [5,10,20,50,100,500,1000],
+        loadFilter: pagerFilter,
+        columns:[[
+            {field:'fpdm',title:'发票代码(必填)', width:'217px',align:'center', editor:'numberbox', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'fphm',title:'发票号码(必填)', width:'217px',align:'center', editor:'numberbox', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'kprq',title:'开票日期(必填)', width:'217px',align:'center', editor:'text', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'je',title:'不含税金额(必填)', width:'217px',align:'center', editor:{type:'numberbox',options:{precision:2}}, sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            },
+            {field:'jym',title:'校验码后6位(选填)', width:'217px',align:'center', editor:'numberbox', sortable:true,
+                sorter:function(a,b) { return (a < b ? 1 : -1); }
+            }
+        ]],
+    });
+</script>
+</body>
+</html>

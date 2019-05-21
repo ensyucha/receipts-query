@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>发票查询-管理</title>
+    <script type="text/javascript" src="/assets/self/main.js"></script>
+</head>
+<body>
+
+<div class="mdui-container system-main-container">
+    <div class="receipts-container-border">
+        <div class="mdui-container">
+            <div class="mdui-row receipts-op-panel">
+                <div>&nbsp;</div>
+                <div class="mdui-btn mdui-color-blue-grey-500 info-panel">未分配额度：{{ .UnusedUsage }}</div>
+                <div>
+                    <button class="mdui-btn mdui-color-myself" onclick="updatePassword({{ .Password }})">修改管理密码</button>
+                    <button class="mdui-btn mdui-color-myself" onclick="updateUnusedUsage({{ .UnusedUsage }}, {{ .ApiCode }})">修改未分配额度</button>
+                    <button class="mdui-btn mdui-color-myself" onclick="updateApiCode({{ .ApiCode }})">修改apicode</button>
+                </div>
+                <button class="mdui-btn mdui-color-red" onclick="addUser()">增加新用户</button>
+                <div>
+                    <button class="mdui-btn mdui-color-pink" onclick="showGuide('system.pdf')">使用说明</button>
+                    <button class="mdui-btn mdui-color-pink" onclick="toLogout()">切换账号</button>
+                </div>
+            </div>
+            <div class="mdui-row">
+                <div class="mdui-table-fluid">
+                    <table class="mdui-table system-th-center">
+                        <thead><tr>
+                            <th class="system-td-center">用户</th>
+                            <th class="system-td-center">昵称</th>
+                            <th class="system-td-center">密码</th>
+                            <th class="system-td-center">剩余额度</th>
+                            <th class="system-td-center">操作选项</th>
+                        </tr></thead>
+                        <tbody id="main-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    listAllUser();
+</script>
+
+</body>
+</html>
