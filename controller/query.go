@@ -22,7 +22,7 @@ var tempQueryResultMap = make(map[string][]*model.QueryResult)
 
 func init() {
 	client = &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 20,
 	}
 }
 
@@ -331,8 +331,8 @@ func zpListToString(zpList []*model.ZpListItem) string {
 }
 
 func zpItemToString(zpItem *model.ZpListItem) string {
-	return zpItem.MxName + "|" + zpItem.Ggxh + "|单价" + zpItem.Price +
-		"|" + zpItem.Num + zpItem.Unit + "|金额" + zpItem.Je + "|" + zpItem.Sl + "|税额" + zpItem.Se
+	return zpItem.MxName + "||" + zpItem.Ggxh + "||" + zpItem.Price +
+		"||" + zpItem.Num + "||" + zpItem.Unit + "||" + zpItem.Je + "||" + zpItem.Sl + "||" + zpItem.Se
 }
 
 func judgeQuerySuccess(code string) bool {

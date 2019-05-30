@@ -28,9 +28,13 @@
                     <button class="mdui-btn mdui-color-myself" onclick="editShowHideCol()">显示/隐藏列</button>
                     <button class="mdui-btn mdui-color-myself" onclick="filterResult()">过滤</button>
                     <button class="mdui-btn mdui-color-myself" onclick="outputAllResult({{ .Username }},'sealed')">
-                        导出Excel
+                        全票导出
                     </button>
-                    <a href="" download="封存导出.xlsx" id="hf"></a>
+                    <a href="" download="封存全票导出.xlsx" id="hf"></a>
+                    <button class="mdui-btn mdui-color-myself" onclick="outputSomeResult({{ .Username }},'sealed')">
+                        简式导出
+                    </button>
+                    <a href="" download="封存简式导出.xlsx" id="hfsome"></a>
                 </div>
                 <div>
                     <button class="mdui-btn mdui-color-pink" onclick="showGuide('sealed.pdf')">

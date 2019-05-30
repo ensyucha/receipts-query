@@ -123,6 +123,56 @@ function outputExcel(jsonObjList) {
     }, 100);
 }
 
+function outputSomeExcel(jsonObjList) {
+
+    let jsonObjListData = jsonObjList[0];
+
+    jsonObjList.unshift({});
+
+    let keyMap = []; //获取keys
+
+    for (let key in jsonObjListData) {
+        keyMap.push(key);
+        jsonObjList[0][key] = key;
+    }
+
+    let savedData = [];//用来保存转换好的json
+
+    jsonObjList.map((v, i) => keyMap.map((k, j) => Object.assign({}, {
+        v: v[k],
+        position: (j > 25 ? getCharCol(j) : String.fromCharCode(65 + j)) + (i + 1),
+    }))).reduce((prev, next) => prev.concat(next)).forEach((v, i) => savedData[v.position] = {
+        v: v.v
+    });
+
+    let outputPos = Object.keys(savedData); //设置区域,比如表格从A1到D10
+
+    let tmpWB = {
+        SheetNames: ['mySheet'], //保存的表标题
+        Sheets: {
+            'mySheet': Object.assign({},
+                savedData, //内容
+                {
+                    '!ref': outputPos[0] + ':' + outputPos[outputPos.length - 1] //设置填充区域
+                })
+        }
+    };
+
+    let downloadObj = new Blob([stringToCharStream(XLSX.write(tmpWB,
+        {bookType: "xlsm", bookSST: false, type: 'binary'}//这里的数据是用来定义导出的格式类型
+    ))], {
+        type: ""
+    }); //创建二进制对象写入转换好的字节流
+
+    document.getElementById("hfsome").href = URL.createObjectURL(downloadObj);
+
+    document.getElementById("hfsome").click(); //模拟点击实现下载
+
+    setTimeout(function() { //延时释放
+        URL.revokeObjectURL(downloadObj); //用URL.revokeObjectURL()来释放这个object URL
+    }, 100);
+}
+
 function stringToCharStream(str) {
     let buf = new ArrayBuffer(str.length);
 
@@ -149,15 +199,52 @@ function getCharCol(n) {
     return s;
 }
 
-function makeSingleReceiptQueryObj(ensured, fpdm, fphm, kprq, je, jym, respMsg) {
+function makeAllResultOutput(item) {
+
+    let zpList = item['zpListString'].split("||");
+
     return {
-        "是否勾选": ensured,
-        "发票代码": fpdm,
-        "发票号码": fphm,
-        "开票日期": kprq,
-        "不含税金额": je,
-        "校验码": jym,
-        "查询结果": respMsg,
+        "发票类型": item['fplx'],
+        "发票代码": item['fpdm'],
+        "发票号码": item['fphm'],
+        "开票日期": item['kprq'],
+        "购方名称": item['gfName'],
+        "购方税号": item['gfNsrsbh'],
+        "购方地址电话": item['gfAddressTel'],
+        "购方开户行账号": item['gfBankZh'],
+        "销售方名称": item['sfName'],
+        "销方纳税人识别号": item['sfNsrsbh'],
+        "销方地址及电话": item['sfAddressTel'],
+        "销方银行及账号": item['sfBankZh'],
+        "不含税金额": zpList[5],
+        "税额": zpList[7],
+        "发票明细": zpList[0],
+        "规格型号": zpList[1],
+        "计量单位": zpList[4],
+        "数量": zpList[3],
+        "单价": zpList[2],
+        "税率": zpList[6],
+        "发票备注": item['bz'],
+    }
+}
+
+function makeSomeResultOutput(item) {
+
+    let zpList = item['zpListString'].split("||");
+
+    return {
+
+        "发票代码": item['fpdm'],
+        "发票号码": item['fphm'],
+        "开票日期": item['kprq'],
+        "销方纳税人识别号": item['sfNsrsbh'],
+        "销售方名称": item['sfName'],
+        "金额": zpList[5],
+        "税额": zpList[7],
+        "认证方式": "???",
+        "确认/认证日期": item['yzmSj'],
+        "发票类型": item['fplx'],
+        "发票状态": item['fpzt'],
     }
 }
 
@@ -328,7 +415,7 @@ function query(usage) {
 
             $.ajax({ // 发起 ajax 请求，进行密码判断
                 type: "POST",
-                timeout: 5000,
+                timeout: 20000,
                 url: "/query",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
@@ -347,12 +434,7 @@ function query(usage) {
                     });
                 },
                 error: function (message) {
-                    sbar.close();
-                    mdui.snackbar({
-                        message: message['status'] + " : " + message['message'], // 显示信息给用户
-                        position: "top",
-                        timeout: 3000,
-                    });
+                    alert(message['status'] + " : " + message['message'] + "请重试");
                 }
             });
 
@@ -1098,19 +1180,55 @@ function outputAllResult(username, filter) {
 
                     for (let i=0; i<rows.length; i++) {
                         let item = rows[i];
-                        let ensured = "";
 
-                        if (item['ensured'].indexOf("已") !== -1) {
-                            ensured="已勾选";
-                        } else {
-                            ensured="未勾选";
-                        }
-
-                        jsonObjList.push(makeSingleReceiptQueryObj(ensured, item['fpdm'], item['fphm'], item['kprq'], item['jshjL'],
-                            item['jym'], item['respMsg']));
+                        jsonObjList.push(makeAllResultOutput(item))
                     }
 
                     outputExcel(jsonObjList);
+                }
+            });
+        },
+        error: function(message) {
+            mdui.snackbar({
+                message: message['status'] + " : " + message['message'], // 显示信息给用户
+                position: "top",
+                timeout: 3000,
+            });
+        }
+    });
+}
+
+function outputSomeResult(username, filter) {
+
+    let filterString = "";
+
+    if (filter !== "sealed") {
+        filterString = "sealed%3D'0'"
+    } else {
+        filterString = "sealed%3D'1'"
+    }
+
+    $.ajax({ // 发起 ajax 请求，进行密码判断
+        type: "POST",
+        timeout: 5000,
+        url: "/result/data",
+        data: makeResultPara(username, filterString, "", "getdata"),
+        success: function (message) {
+            mdui.snackbar({
+                message: "获取数据成功，正在导出", // 显示信息给用户
+                position: "top",
+                timeout: 500,
+                onClose: function() {
+                    let jsonObjList = [];
+                    let rows = message.rows;
+
+                    for (let i=0; i<rows.length; i++) {
+                        let item = rows[i];
+
+                        jsonObjList.push(makeSomeResultOutput(item))
+                    }
+
+                    outputSomeExcel(jsonObjList);
                 }
             });
         },
