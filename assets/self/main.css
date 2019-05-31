@@ -2,6 +2,22 @@ body {
     background-image: url(../document/background.png);
 }
 
+body.dragging, body.dragging * {
+    cursor: move !important;
+}
+
+.dragged {
+    position: absolute;
+    opacity: 0.5;
+    z-index: 2000;
+}
+ol#result-col li.placeholder {
+    position: relative;
+}
+ol#result-col li.placeholder:before {
+    position: absolute;
+}
+
 .receipts-container-border {
     margin-top: 10px;
     margin-bottom: 10px;

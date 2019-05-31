@@ -186,7 +186,8 @@ func doQuery(apiCode string, queryChan chan *model.Query, queryResultChan chan *
 
 			if err != nil {
 				queryResult.RespCode = "3000"
-				queryResult.RespMsg = "client.Do失败：" + err.Error()
+				queryResult.RespMsg = "系统繁忙，请稍后重试"
+				dbop.WriteLog("system", "client.Do失败：" + err.Error(), "system")
 			} else {
 				body, err := ioutil.ReadAll(resp.Body)
 

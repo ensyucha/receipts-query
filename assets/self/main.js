@@ -3,6 +3,7 @@ document.write('<script type="text/javascript" src="/assets/easyui/jquery.easyui
 document.write('<script type="text/javascript" src="/assets/easyui/locale/easyui-lang-zh_CN.js"></script>');
 document.write('<script type="text/javascript" src="/assets/other/jquery.cookie.js"></script>');
 document.write('<script type="text/javascript" src="/assets/other/xlsx.core.min.js"></script>');
+document.write('<script type="text/javascript" src="/assets/other/jquery-sortable.js"></script>');
 document.write('<script type="text/javascript" src="/assets/mdui/js/mdui.js"></script>');
 
 document.write('<link rel="icon" href="/assets/document/favicon.ico" />');
@@ -434,7 +435,7 @@ function query(usage) {
                     });
                 },
                 error: function (message) {
-                    alert(message['status'] + " : " + message['message'] + "请重试");
+                    toTemp();
                 }
             });
 
@@ -1026,6 +1027,8 @@ function editShowHideCol() {
     mdui.dialog({
         title: '<span class="dialog-title-color">显示/隐藏列</span>',
         content: `<div class="result-dialog-content">打钩显示，不打勾隐藏</div><br />
+            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-ensured" value="ensured"/><i class="mdui-checkbox-icon"></i>确认状态</label>
+            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-respMsg" value="respMsg"/><i class="mdui-checkbox-icon"></i>验证类型</label>
             <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-fpzt" value="fpzt"/><i class="mdui-checkbox-icon"></i>发票状态</label>
             <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-fplx" value="fplx"/><i class="mdui-checkbox-icon"></i>发票类型</label>
             <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-jshjL" value="jshjL"/><i class="mdui-checkbox-icon"></i>价税合计</label>
@@ -1102,6 +1105,25 @@ function showHideCol() {
     }
 
     dgSelector.datagrid("resize");
+}
+
+function buildCol(colInfo) {
+    let col = [];
+
+    for (let i=0; i<colInfo.length; i++) {
+        let dgField = {
+            field: colInfo[i][0],
+            title: colInfo[i][1],
+            hidden: !colInfo[i][2],
+            width: colInfo[i][3],
+            align: colInfo[i][4],
+            sortable:true,
+            sorter:function(a,b) { return (a < b ? 1 : -1); }
+        };
+        col.push(dgField)
+    }
+
+    return col;
 }
 
 function getSelectedResultID() {
@@ -1280,3 +1302,32 @@ function updateResult(username, operation) {
 function filterResult() {
     alert("待讨论细节");
 }
+
+////////////////////////////////////////////////////////////////////
+
+let basicColInfo = [
+    ['ensured','确认状态',true,'80px','center'],
+    ['respMsg','发票状态',true,'140px','center'],
+    ['fpzt','发票状态',true,'85px','center'],
+    ['fplx','发票类型',true,'85px','center'],
+    ['fpdm','发票代码',true,'95px','center'],
+    ['fphm','发票号码',true,'85px','center'],
+    ['kprq','开票日期',true,'90px','center'],
+    ['yzmSj','验证时间',true,'145px','center'],
+    ['jqbm','机器编码',true,'110px','center'],
+    ['gfName','购方名称',true,'','center'],
+    ['gfNsrsbh','购方识别号',true,'170px','center'],
+    ['gfAddressTel','购方联系地址',true,'','center'],
+    ['gfBankZh','购方开户行',true,'','center'],
+    ['fxqy','风险企业验证',true,'92px','center'],
+    ['sfName','销售方名称',true,'','center'],
+    ['sfNsrsbh','销售方识别号',true,'170px','center'],
+    ['sfAddressTel','销售方联系地址',true,'','center'],
+    ['sfBankZh','销售方开户行',true,'','center'],
+    ['jshjL','价税合计',true,'145px','center'],
+    ['jshjU','价税合计(大写)',true,'','center'],
+    ['qd','清单',true,'80px','center'],
+    ['bz','备注',true,'','center'],
+    ['zpListString','商品列表',true,'','center'],
+    ['jym','校验码',true,'180px','center']
+];
