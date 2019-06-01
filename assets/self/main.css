@@ -147,3 +147,36 @@ ol#result-col li.placeholder:before {
     font-weight: bold !important;
 }
 
+.setting-col-li-title:hover {
+    cursor: move;
+}
+
+.setting-col-li-field {
+    display:none;
+}
+
+.setting-col-li-width {
+    display:none;
+}
+
+.setting-col-li-title {
+    width:270px;
+    display:inline-block;
+    font-weight: bold;
+}
+
+.setting-col-ul-div {
+    width:100%;
+    margin:0 auto;
+}
+
+.setting-col-li-hidden-outer {
+    width:270px;
+    display:inline-block;
+    font-weight: bold;
+}
+
+.setting-col-li-align-outer {
+    display:inline-block;
+    font-weight: bold;
+}

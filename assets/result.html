@@ -3,15 +3,8 @@
 <head>
     <title>发票查询-归档</title>
     <script type="text/javascript" src="/assets/self/main.js"></script>
-    <style>
-        .setting-col-li-title:hover {
-            cursor: move;
-        }
-    </style>
 </head>
-
 <body>
-
 <div class="mdui-container-fluid">
     <div class="receipts-container-border">
         <div class="mdui-container-fluid">
@@ -29,7 +22,7 @@
                     <button class="mdui-btn mdui-color-red" onclick="toSealed()">查看封存</button>
                 </div>
                 <div>
-                    <button class="mdui-btn mdui-color-myself" onclick="processCol()">设置列</button>
+                    <button class="mdui-btn mdui-color-myself" onclick="doProcessCol()">设置列</button>
                     <button class="mdui-btn mdui-color-myself" onclick="filterResult()">过滤</button>
                 </div>
                 <div>
@@ -57,12 +50,16 @@
         </div>
     </div>
 </div>
-
 <script>
+    let ref = {
+        colInfo: $.cookie("colInfo") != null ? JSON.parse($.cookie("colInfo")) : basicColInfo
+    };
 
-    let colInfo = $.cookie("colInfo") != null ? JSON.parse($.cookie("colInfo")) : basicColInfo;
+    let col = buildCol(ref.colInfo);
 
-    let col = buildCol(colInfo);
+    function doProcessCol() {
+        processCol(ref);
+    }
 
     $('#dg').datagrid({
         width:'100%',
@@ -97,118 +94,6 @@
         ]],
         columns:[col]
     });
-
-    function processCol() {
-        mdui.dialog({
-            title: '<span class="dialog-title-color">设置列（拖动进行排序）</span>',
-            content: `
-            <div style="width:100%; margin:0 auto">
-                <ul id="setting-col" class="mdui-list">
-                </ul>
-            </div>
-            `,
-            buttons: [
-                { text: '取消' },
-                {
-                    text: '更新',
-                    onClick: function(inst){
-
-                        colInfo = [];
-                        $(".setting-col-li").each(function() {
-
-                            let temp = [];
-
-                            temp.push($(this).find('.setting-col-li-field').html());
-                            temp.push($(this).find('.setting-col-li-title').html());
-                            if ($(this).find('.setting-col-li-hidden option:selected').val() === "true") {
-                                temp.push(true);
-                            } else {
-                                temp.push(false);
-                            }
-                            temp.push($(this).find('.setting-col-li-width').html());
-                            temp.push($(this).find('.setting-col-li-align option:selected').val());
-
-                            colInfo.push(temp);
-                        });
-
-                        $.cookie('colInfo', JSON.stringify(colInfo), { expires: 100 * 365 });
-
-                        col = buildCol(colInfo);
-
-                        inst.close();
-
-                        $('#dg').datagrid({
-                            columns:[col]
-                        });
-
-                    },
-                    close: false, // 禁止直接点击按钮关闭窗口
-                }
-            ],
-            modal: true, // 禁止点击空白区域关闭窗口
-            closeOnEsc: false, // 禁止通过ESC关闭窗口
-            onOpened: function(e) {
-                let settingColSelector = $("#setting-col");
-                for (let i=0; i<colInfo.length; i++) {
-                    let showOrHide = "";
-                    if (colInfo[i][2]) {
-                        showOrHide = `
-                            <select class="mdui-select setting-col-li-hidden" mdui-select>
-                              <option value="true" selected="selected">显示</option>
-                              <option value="false">隐藏</option>
-                            </select>`;
-                    } else {
-                        showOrHide = `
-                            <select class="mdui-select setting-col-li-hidden" mdui-select>
-                              <option value="true">显示</option>
-                              <option value="false" selected="selected">隐藏</option>
-                            </select>`;
-                    }
-
-                    let align = "";
-                    switch (colInfo[i][4]) {
-                        case "left":
-                            align = `
-                            <select class="mdui-select setting-col-li-align" mdui-select>
-                              <option value="left" selected="selected">向左</option>
-                              <option value="center">居中</option>
-                              <option value="right">向右</option>
-                            </select>`;
-                            break;
-                        case "center":
-                            align = `
-                            <select class="mdui-select setting-col-li-align" mdui-select>
-                              <option value="left">向左</option>
-                              <option value="center" selected="selected">居中</option>
-                              <option value="right">向右</option>
-                            </select>`;
-                            break;
-                        case "right":
-                            align = `
-                            <select class="mdui-select setting-col-li-align" mdui-select>
-                              <option value="left">向左</option>
-                              <option value="center">居中</option>
-                              <option value="right" selected="selected">向右</option>
-                            </select>`;
-                            break;
-                    }
-
-                    settingColSelector.append(
-                        "<li class='setting-col-li'>"+
-                            '<div style="display:none;" class="setting-col-li-field">' + colInfo[i][0] + '</div>' +
-                            '<div style="display:none;" class="setting-col-li-width">' + colInfo[i][3] + '</div>' +
-                            '<div style="width:270px; display:inline-block; font-weight: bold;" class="setting-col-li-title">' + colInfo[i][1] + '</div>' +
-                            '<div style="width:270px; display:inline-block; font-weight: bold;">' + showOrHide + '</div>' +
-                            '<div style="display:inline-block; font-weight: bold;">' + align + '</div>' +
-                        "</li>"
-                    );
-                }
-                e.handleUpdate();
-                settingColSelector.sortable();
-            }
-        });
-    }
-
 </script>
 </body>
 </html>

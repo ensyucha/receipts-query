@@ -1023,61 +1023,44 @@ function editUser(userObjStr) {
 
 /////////////////////////////////////////
 
-function editShowHideCol() {
+function processCol(ref) {
     mdui.dialog({
-        title: '<span class="dialog-title-color">显示/隐藏列</span>',
-        content: `<div class="result-dialog-content">打钩显示，不打勾隐藏</div><br />
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-ensured" value="ensured"/><i class="mdui-checkbox-icon"></i>确认状态</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-respMsg" value="respMsg"/><i class="mdui-checkbox-icon"></i>验证类型</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-fpzt" value="fpzt"/><i class="mdui-checkbox-icon"></i>发票状态</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-fplx" value="fplx"/><i class="mdui-checkbox-icon"></i>发票类型</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-jshjL" value="jshjL"/><i class="mdui-checkbox-icon"></i>价税合计</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-jshjU" value="jshjU"/><i class="mdui-checkbox-icon"></i>价税合计(大写)</label>
-            <br /><br />
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-fpdm" value="fpdm"/><i class="mdui-checkbox-icon"></i>发票代码</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-fphm" value="fphm"/><i class="mdui-checkbox-icon"></i>发票号码</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-kprq" value="kprq"/><i class="mdui-checkbox-icon"></i>开票日期</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-yzmSj" value="yzmSj"/><i class="mdui-checkbox-icon"></i>验证时间</label>
-            <br /><br />
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-jym" value="jym"/><i class="mdui-checkbox-icon"></i>检验码</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-qd" value="qd"/><i class="mdui-checkbox-icon"></i>有无清单</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-jqbm" value="jqbm"/><i class="mdui-checkbox-icon"></i>机器编码</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-zpListString" value="zpListString"/><i class="mdui-checkbox-icon"></i>商品列表</label>
-            <br /><br />
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-gfName" value="gfName"/><i class="mdui-checkbox-icon"></i>购方名称</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-gfNsrsbh" value="gfNsrsbh"/><i class="mdui-checkbox-icon"></i>购方识别号</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-gfAddressTel" value="gfAddressTel"/><i class="mdui-checkbox-icon"></i>购方联系地址</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-gfBankZh" value="gfBankZh"/><i class="mdui-checkbox-icon"></i>购方开户行</label>
-            <br /><br />
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-sfName" value="sfName"/><i class="mdui-checkbox-icon"></i>销售方名称</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-sfNsrsbh" value="sfNsrsbh"/><i class="mdui-checkbox-icon"></i>销售方识别号</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-sfAddressTel" value="sfAddressTel"/><i class="mdui-checkbox-icon"></i>销售方联系方式</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-sfBankZh" value="sfBankZh"/><i class="mdui-checkbox-icon"></i>销售方开户行</label>
-            <br /><br />
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-fxqy" value="fxqy"/><i class="mdui-checkbox-icon"></i>风险企业验证</label>
-            <label class="mdui-checkbox result-checkbox-label"><input class="cb" type="checkbox" id="checkbox-bz" value="bz"/><i class="mdui-checkbox-icon"></i>备注</label>
+        title: '<span class="dialog-title-color">设置列（拖动列名进行排序）</span>',
+        content: `
+            <div class="setting-col-ul-div">
+                <ul id="setting-col" class="mdui-list">
+                </ul>
+            </div>
             `,
         buttons: [
             { text: '取消' },
             {
                 text: '更新',
                 onClick: function(inst){
-                    showHideColPara['show'] = [];
-                    showHideColPara['hide'] = [];
 
-                    $.each($(".cb"), function(){
-                        if ($(this).prop('checked')) {
-                            showHideColPara['show'].push($(this).val())
+                    ref.colInfo = [];
+                    $(".setting-col-li").each(function() {
+
+                        let temp = [];
+
+                        temp.push($(this).find('.setting-col-li-field').html());
+                        temp.push($(this).find('.setting-col-li-title').html());
+                        if ($(this).find('.setting-col-li-hidden option:selected').val() === "true") {
+                            temp.push(true);
                         } else {
-                            showHideColPara['hide'].push($(this).val())
+                            temp.push(false);
                         }
+                        temp.push($(this).find('.setting-col-li-width').html());
+                        temp.push($(this).find('.setting-col-li-align option:selected').val());
+
+                        ref.colInfo.push(temp);
                     });
 
-                    $.cookie('showHidePara', JSON.stringify(showHideColPara), { expires: 100 * 365 });
+                    $.cookie('colInfo', JSON.stringify(ref.colInfo), { expires: 100 * 365 });
 
-                    showHideCol();
-
-                    dgSelector.datagrid("resize");
+                    $("#dg").datagrid({
+                        columns:[buildCol(ref.colInfo)]
+                    });
 
                     inst.close();
                 },
@@ -1086,25 +1069,66 @@ function editShowHideCol() {
         ],
         modal: true, // 禁止点击空白区域关闭窗口
         closeOnEsc: false, // 禁止通过ESC关闭窗口
-        onOpened: function() {
-            let showPara = showHideColPara['show'];
-            for (let i=0; i < showPara.length; i++) {
-                $("#checkbox-"+showPara[i]).attr("checked",true);
+        onOpened: function(e) {
+            let settingColSelector = $("#setting-col");
+            for (let i=0; i<ref.colInfo.length; i++) {
+                let showOrHide = "";
+                if (ref.colInfo[i][2]) {
+                    showOrHide = `
+                            <select class="mdui-select setting-col-li-hidden" mdui-select>
+                              <option value="true" selected="selected">显示</option>
+                              <option value="false">隐藏</option>
+                            </select>`;
+                } else {
+                    showOrHide = `
+                            <select class="mdui-select setting-col-li-hidden" mdui-select>
+                              <option value="true">显示</option>
+                              <option value="false" selected="selected">隐藏</option>
+                            </select>`;
+                }
+
+                let align = "";
+                switch (ref.colInfo[i][4]) {
+                    case "left":
+                        align = `
+                            <select class="mdui-select setting-col-li-align" mdui-select>
+                              <option value="left" selected="selected">向左</option>
+                              <option value="center">居中</option>
+                              <option value="right">向右</option>
+                            </select>`;
+                        break;
+                    case "center":
+                        align = `
+                            <select class="mdui-select setting-col-li-align" mdui-select>
+                              <option value="left">向左</option>
+                              <option value="center" selected="selected">居中</option>
+                              <option value="right">向右</option>
+                            </select>`;
+                        break;
+                    case "right":
+                        align = `
+                            <select class="mdui-select setting-col-li-align" mdui-select>
+                              <option value="left">向左</option>
+                              <option value="center">居中</option>
+                              <option value="right" selected="selected">向右</option>
+                            </select>`;
+                        break;
+                }
+
+                settingColSelector.append(
+                    "<li class='setting-col-li'>"+
+                    '<div class="setting-col-li-field">' + ref.colInfo[i][0] + '</div>' +
+                    '<div class="setting-col-li-width">' + ref.colInfo[i][3] + '</div>' +
+                    '<div class="setting-col-li-title">' + ref.colInfo[i][1] + '</div>' +
+                    '<div class="setting-col-li-hidden-outer">' + showOrHide + '</div>' +
+                    '<div class="setting-col-li-align-outer">' + align + '</div>' +
+                    "</li>"
+                );
             }
+            e.handleUpdate();
+            settingColSelector.sortable();
         }
     });
-}
-
-function showHideCol() {
-
-    for (let i=0; i<showHideColPara['show'].length; i++) {
-        dgSelector.datagrid('showColumn', showHideColPara['show'][i]);
-    }
-    for (let i=0; i<showHideColPara['hide'].length; i++) {
-        dgSelector.datagrid('hideColumn', showHideColPara['hide'][i]);
-    }
-
-    dgSelector.datagrid("resize");
 }
 
 function buildCol(colInfo) {
@@ -1307,7 +1331,7 @@ function filterResult() {
 
 let basicColInfo = [
     ['ensured','确认状态',true,'80px','center'],
-    ['respMsg','发票状态',true,'140px','center'],
+    ['respMsg','验证状态',true,'140px','center'],
     ['fpzt','发票状态',true,'85px','center'],
     ['fplx','发票类型',true,'85px','center'],
     ['fpdm','发票代码',true,'95px','center'],

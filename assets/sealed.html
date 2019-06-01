@@ -25,7 +25,7 @@
                     <button class="mdui-btn mdui-color-red" onclick="removeResult({{ .Username }})">删除</button>
                 </div>
                 <div>
-                    <button class="mdui-btn mdui-color-myself" onclick="editShowHideCol()">显示/隐藏列</button>
+                    <button class="mdui-btn mdui-color-myself" onclick="doProcessCol()">设置列</button>
                     <button class="mdui-btn mdui-color-myself" onclick="filterResult()">过滤</button>
                     <button class="mdui-btn mdui-color-myself" onclick="outputAllResult({{ .Username }},'sealed')">
                         全票导出
@@ -54,18 +54,17 @@
 
 <script>
 
-    let showHideColPara = {
-        show: ['fpzt','fplx', 'jshjL', 'fpdm', 'fphm', 'kprq', 'yzmSj', 'jqbm', 'zpListString', 'gfName',
-            'gfAddressTel', 'gfBankZh', 'sfName', 'sfBankZh', 'sfAddressTel', 'bz'],
-        hide: ['jshjU', 'jym', 'qd', 'gfNsrsbh', 'sfNsrsbh', 'fxqy'],
+    let ref = {
+        colInfo: $.cookie("colInfo") != null ? JSON.parse($.cookie("colInfo")) : basicColInfo
     };
-    let dgSelector = $('#dg');
 
-    if ($.cookie("showHidePara") != null) {
-        showHideColPara = JSON.parse($.cookie("showHidePara"));
+    let col = buildCol(ref.colInfo);
+
+    function doProcessCol() {
+        processCol(ref);
     }
 
-    dgSelector.datagrid({
+    $("#dg").datagrid({
         width:'100%',
         remoteSort: false,
         rownumbers: true,
@@ -96,84 +95,8 @@
             {field:'resultid',title:'resultid',align:'center',hidden:true,width:"0px",sortable:true,
                 sorter:function(a,b) { return (a < b ? 1 : -1); }
             },
-            {field:'ensured',title:'确认状态',align:'center',width:"80px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'respMsg',title:'验证状态',align:'center',width:"140px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
         ]],
-        columns:[[
-            {field:'fpzt',title:'发票状态',align:'center',width:"85px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'fplx',title:'发票类型',align:'center',width:"85px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'fpdm',title:'发票代码',align:'center',width:"95px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'fphm',title:'发票号码',align:'center',width:"85px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'kprq',title:'开票日期',align:'center',width:"90px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'yzmSj',title:'验证时间',align:'center',width:"145px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'jqbm',title:'机器编码',align:'center',width:"110px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'gfName',title:'购方名称',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'gfNsrsbh',title:'购方识别号',align:'center',width:"170px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'gfAddressTel',title:'购方联系地址',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'gfBankZh',title:'购方开户行',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'fxqy',title:'风险企业验证',align:'center',width:"92px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'sfName',title:'销售方名称',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'sfNsrsbh',title:'销售方识别号',align:'center',width:"170px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'sfAddressTel',title:'销售方联系地址',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'sfBankZh',title:'销售方开户行',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'jshjL',title:'价税合计',align:'center',width:"145px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'jshjU',title:'价税合计(大写)',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'qd',title:'有无清单',align:'center',width:"80px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'bz',title:'备注',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'zpListString',title:'商品列表',align:'center',sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-            {field:'jym',title:'检验码',align:'center',width:"180px",sortable:true,
-                sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
-        ]],
-        onLoadSuccess: function() {
-            showHideCol();
-        }
+        columns:[col]
     });
 
 </script>
