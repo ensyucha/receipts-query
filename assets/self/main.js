@@ -233,6 +233,12 @@ function makeSomeResultOutput(item) {
 
     let zpList = item['zpListString'].split("||");
 
+    if (item['ensured'].indexOf("已") !== -1) {
+        item['ensured'] = "已确认";
+    } else {
+        item['ensured'] = "未确认";
+    }
+
     return {
 
         "发票代码": item['fpdm'],
@@ -242,7 +248,7 @@ function makeSomeResultOutput(item) {
         "销售方名称": item['sfName'],
         "金额": zpList[5],
         "税额": zpList[7],
-        "认证方式": "???",
+        "认证方式": item['ensured'],
         "确认/认证日期": item['yzmSj'],
         "发票类型": item['fplx'],
         "发票状态": item['fpzt'],
@@ -358,7 +364,7 @@ function extractExcelData(e) {
 
         processExcelReceipt(excelData); // 处理上传的Excel表格数据
 
-        dgSelector.datagrid('loadData', queryrows);
+        $("#dg").datagrid('loadData', queryrows);
     };
 
     fileReader.readAsBinaryString(files[0]); // 以二进制方式打开文件
@@ -1152,7 +1158,7 @@ function buildCol(colInfo) {
 
 function getSelectedResultID() {
     let ids = [];
-    let src = dgSelector.datagrid("getSelections");
+    let src = $("#dg").datagrid("getSelections");
 
     for (let i=0; i<src.length; i++) {
         ids.push(src[i].resultid);
@@ -1161,7 +1167,9 @@ function getSelectedResultID() {
     return ids;
 }
 
-function makeResultPara(username, filter,idsString,operation) {
+function makeResultPara(username, filter, idsString, operation) {
+
+    filter = filter.replace(/%/g, "@@@");
 
     return "username=" + username + "&filter=" + filter + "&resultid=" + idsString +
     "&operation=" + operation + "&page=1&rows=20";
@@ -1200,14 +1208,18 @@ function removeResult(username) {
     },function () {},{confirmText:"确认删除",cancelText:"取消",modal:true,closeOnEsc:false});
 }
 
-function outputAllResult(username, filter) {
+function outputAllResult(username, ref) {
 
     let filterString = "";
 
-    if (filter !== "sealed") {
-        filterString = "sealed%3D'0'"
+    if (ref.filter !== "sealed") {
+        filterString = "sealed='0'"
     } else {
-        filterString = "sealed%3D'1'"
+        filterString = "sealed='1'"
+    }
+
+    if (ref.filterSQL.length > 0) {
+        filterString += " AND " + ref.filterSQL;
     }
 
     $.ajax({ // 发起 ajax 请求，进行密码判断
@@ -1248,10 +1260,14 @@ function outputSomeResult(username, filter) {
 
     let filterString = "";
 
-    if (filter !== "sealed") {
-        filterString = "sealed%3D'0'"
+    if (ref.filter !== "sealed") {
+        filterString = "sealed='0'"
     } else {
-        filterString = "sealed%3D'1'"
+        filterString = "sealed='1'"
+    }
+
+    if (ref.filterSQL.length > 0) {
+        filterString += " AND " + ref.filterSQL;
     }
 
     $.ajax({ // 发起 ajax 请求，进行密码判断
@@ -1296,7 +1312,7 @@ function updateResult(username, operation) {
         type: "POST",
         timeout: 5000,
         url: "/result/data",
-        data: makeResultPara(username,"", idsString, operation),
+        data: makeResultPara(username, "", idsString, operation),
         success: function (message) {
             mdui.snackbar({
                 message: message['status'] + " : " + message['message'], // 显示信息给用户
@@ -1323,8 +1339,186 @@ function updateResult(username, operation) {
     });
 }
 
+function getResult(filterSQL) {
+
+    let dgSelector = $('#dg');
+    let queryParams = dgSelector.datagrid('options').queryParams;
+
+    if (filterSQL.length <= 0) {
+        return;
+    }
+
+    queryParams.filter += " AND " + filterSQL;
+
+    dgSelector.datagrid('reload');
+}
+
+function buildFilterSQL(filterSQLPara) {
+
+    let SQLParaList = [];
+
+    Object.keys(filterSQLPara).forEach(function(key){
+        if (filterSQLPara[key].length > 0) {
+
+            switch(key) {
+                case 'fphmStart':
+                    SQLParaList.push("fphm >= '" + filterSQLPara[key] + "'");
+                    break;
+                case 'fphmEnd':
+                    SQLParaList.push("fphm <= '" + filterSQLPara[key] + "'");
+                    break;
+                case 'yzmSjStart':
+                    SQLParaList.push("yzmSj >= '" + filterSQLPara[key] + "'");
+                    break;
+                case 'yzmSjEnd':
+                    SQLParaList.push("yzmSj <= '" + filterSQLPara[key] + "'");
+                    break;
+                default:
+                    SQLParaList.push(key + " LIKE '%" + filterSQLPara[key] + "%'");
+                    break;
+            }
+
+        }
+    });
+
+    return SQLParaList.join(" AND ");
+}
+
+function clearFilter() {
+    window.location.reload();
+}
+
 function filterResult() {
-    alert("待讨论细节");
+    mdui.dialog({
+        title: '<span class="dialog-title-color">设置过滤</span>',
+        content: `
+            <div class="mdui-container-fluid">
+                <div class="mdui-row">
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">发票代码：</span>
+                        <input type="text" id="filter-fpdm" class="filter-input">
+                    </div>
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">确认状态：</span>
+                        <select id="filter-ensured" class="filter-select">
+                            <option selected>全部</option>
+                            <option>已确认</option>
+                            <option>未确认</option>
+                        </select>
+                    </div>
+                </div>
+                <br />
+                <div class="mdui-row">
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">发票类型：</span>
+                        <select id="filter-fplx" class="filter-select">
+                            <option selected>全部</option>
+                            <option>增值税专票</option>
+                            <option>机动车发票</option>
+                            <option>增值税发票</option>
+                            <option>电子发票</option>
+                            <option>卷式发票</option>
+                            <option>通行费发票</option>
+                            <option>二手车发票</option>
+                        </select>
+                    </div>
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">验证状态：</span>
+                        <select id="filter-respMsg" class="filter-select">
+                            <option selected>全部</option>
+                            <option>发票查验成功</option>
+                            <option>发票查验不成功</option>
+                        </select>
+                    </div>
+                </div>
+                <br />
+                <div class="mdui-row">
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">发票号码：</span>
+                        <input type="text" id="filter-fphm-start" class="filter-input-small">
+                        <span class="filter-title"> — </span>
+                        <input type="text" id="filter-fphm-end" class="filter-input-small">
+                    </div>
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">验证时间：</span>
+                        <input type="text" id="filter-yzmSj-start" class="filter-input-small">
+                        <span class="filter-title"> — </span>
+                        <input type="text" id="filter-yzmSj-end" class="filter-input-small">
+                    </div>
+                </div>
+                <br />
+                <div class="mdui-row">
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">销方名称：</span>
+                        <input type="text" id="filter-sfName" class="filter-input">
+                    </div>
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">销方税号：</span>
+                        <input type="text" id="filter-sfNsrsbh" class="filter-input">
+                    </div>
+                </div>
+                <br />
+                <div class="mdui-row">
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">购方名称：</span>
+                        <input type="text" id="filter-gfName" class="filter-input">
+                    </div>
+                    <div class="mdui-col-xs-6">
+                        <span class="filter-title">购方税号：</span>
+                        <input type="text" id="filter-gfNsrsbh" class="filter-input">
+                    </div>
+                </div>
+            </div>
+            `,
+        buttons: [
+            { text: '取消' },
+            {
+                text: '进行过滤',
+                onClick: function(inst){
+                    let filterEnsured = $("#filter-ensured option:selected").html();
+                    if (filterEnsured === "全部") {
+                        filterEnsured = '';
+                    }
+
+                    let filterFplx = $("#filter-fplx option:selected").html();
+                    if (filterFplx === '全部') {
+                        filterFplx = '';
+                    }
+
+                    let filterRespMsg = $("#filter-respMsg option:selected").html();
+                    if (filterRespMsg === '全部') {
+                        filterRespMsg = '';
+                    }
+
+                    let filterSQLPara = {
+                        ensured: filterEnsured,
+                        fplx: filterFplx,
+                        respMsg: filterRespMsg,
+                        fpdm: $("#filter-fpdm").val(),
+                        fphmStart: $("#filter-fphm-start").val(),
+                        fphmEnd: $("#filter-fphm-end").val(),
+                        yzmSjStart: $("#filter-yzmSj-start").val(),
+                        yzmSjEnd:$("#filter-yzmSj-end").val(),
+                        sfName: $("#filter-sfName").val(),
+                        sfNsrsbh: $("#filter-sfNsrsbh").val(),
+                        gfName: $("#filter-gfName").val(),
+                        gfNsrsbh: $("#filter-gfNsrsbh").val()
+                    };
+
+                    let filterSQL = buildFilterSQL(filterSQLPara);
+
+                    ref.filterSQL = filterSQL;
+
+                    getResult(filterSQL);
+
+                    inst.close();
+                },
+                close: false, // 禁止直接点击按钮关闭窗口
+            }
+        ],
+        modal: true, // 禁止点击空白区域关闭窗口
+        closeOnEsc: false // 禁止通过ESC关闭窗口
+    });
 }
 
 ////////////////////////////////////////////////////////////////////

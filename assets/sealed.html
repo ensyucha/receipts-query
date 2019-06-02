@@ -27,11 +27,14 @@
                 <div>
                     <button class="mdui-btn mdui-color-myself" onclick="doProcessCol()">设置列</button>
                     <button class="mdui-btn mdui-color-myself" onclick="filterResult()">过滤</button>
-                    <button class="mdui-btn mdui-color-myself" onclick="outputAllResult({{ .Username }},'sealed')">
+                    <button class="mdui-btn mdui-color-myself" onclick="clearFilter()">清除过滤</button>
+                </div>
+                <div>
+                    <button class="mdui-btn mdui-color-myself" onclick="doOutputAllResult()">
                         全票导出
                     </button>
                     <a href="" download="封存全票导出.xlsx" id="hf"></a>
-                    <button class="mdui-btn mdui-color-myself" onclick="outputSomeResult({{ .Username }},'sealed')">
+                    <button class="mdui-btn mdui-color-myself" onclick="doOutputSomeResult()">
                         简式导出
                     </button>
                     <a href="" download="封存简式导出.xlsx" id="hfsome"></a>
@@ -51,17 +54,25 @@
         </div>
     </div>
 </div>
-
 <script>
-
     let ref = {
-        colInfo: $.cookie("colInfo") != null ? JSON.parse($.cookie("colInfo")) : basicColInfo
+        colInfo: $.cookie("colInfo") != null ? JSON.parse($.cookie("colInfo")) : basicColInfo,
+        filter: "sealed",
+        filterSQL: ""
     };
 
     let col = buildCol(ref.colInfo);
 
     function doProcessCol() {
         processCol(ref);
+    }
+
+    function doOutputAllResult() {
+        outputAllResult({{ .Username }},ref);
+    }
+
+    function doOutputSomeResult() {
+        outputSomeResult({{ .Username }},ref);
     }
 
     $("#dg").datagrid({
@@ -74,7 +85,7 @@
         pageList: [5,10,20,50,100,500,1000],
         nowrap:true,
         fitColumns: true,
-        url: '/result/data',
+        url: "/result/data",
         loadMsg: "请求数据中，请等待...",
         queryParams: {
             "username": {{ .Username }},
@@ -83,7 +94,6 @@
             "operation": "getdata"
         },
         striped: true,
-        multiSort: true,
         autoRowHeight: false,
         method: 'post',
         selectOnCheck: true,
@@ -94,11 +104,10 @@
             {field:'ck',checkbox:true,width:"10px"},
             {field:'resultid',title:'resultid',align:'center',hidden:true,width:"0px",sortable:true,
                 sorter:function(a,b) { return (a < b ? 1 : -1); }
-            },
+            }
         ]],
         columns:[col]
     });
-
 </script>
 </body>
 </html>

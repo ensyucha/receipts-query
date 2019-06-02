@@ -180,3 +180,26 @@ ol#result-col li.placeholder:before {
     display:inline-block;
     font-weight: bold;
 }
+
+.filter-title {
+    font-size: 16px;
+}
+
+.filter-input {
+    width: 240px;
+    padding-left:5px;
+    height:28px;
+    line-height: 28px;
+}
+
+.filter-input-small {
+    width: 110px;
+    padding-left:5px;
+    height:28px;
+    line-height: 28px;
+}
+
+.filter-select {
+    width: 240px;
+    height:28px;
+}

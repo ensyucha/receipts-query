@@ -24,13 +24,14 @@
                 <div>
                     <button class="mdui-btn mdui-color-myself" onclick="doProcessCol()">设置列</button>
                     <button class="mdui-btn mdui-color-myself" onclick="filterResult()">过滤</button>
+                    <button class="mdui-btn mdui-color-myself" onclick="clearFilter()">清除过滤</button>
                 </div>
                 <div>
-                    <button class="mdui-btn mdui-color-myself" onclick="outputAllResult({{ .Username }},'unsealed')">
+                    <button class="mdui-btn mdui-color-myself" onclick="doOutputAllResult()">
                         全票导出
                     </button>
                     <a href="" download="归档全票导出.xlsx" id="hf"></a>
-                    <button class="mdui-btn mdui-color-myself" onclick="outputSomeResult({{ .Username }},'unsealed')">
+                    <button class="mdui-btn mdui-color-myself" onclick="doOutputSomeResult()">
                         简式导出
                     </button>
                     <a href="" download="归档简式导出.xlsx" id="hfsome"></a>
@@ -52,7 +53,9 @@
 </div>
 <script>
     let ref = {
-        colInfo: $.cookie("colInfo") != null ? JSON.parse($.cookie("colInfo")) : basicColInfo
+        colInfo: $.cookie("colInfo") != null ? JSON.parse($.cookie("colInfo")) : basicColInfo,
+        filter: "unsealed",
+        filterSQL: ""
     };
 
     let col = buildCol(ref.colInfo);
@@ -61,7 +64,15 @@
         processCol(ref);
     }
 
-    $('#dg').datagrid({
+    function doOutputAllResult() {
+        outputAllResult({{ .Username }},ref);
+    }
+
+    function doOutputSomeResult() {
+        outputSomeResult({{ .Username }},ref);
+    }
+
+    $("#dg").datagrid({
         width:'100%',
         remoteSort: false,
         rownumbers: true,
@@ -71,7 +82,7 @@
         pageList: [5,10,20,50,100,500,1000],
         nowrap:true,
         fitColumns: true,
-        url: '/result/data',
+        url: "/result/data",
         loadMsg: "请求数据中，请等待...",
         queryParams: {
             "username": {{ .Username }},

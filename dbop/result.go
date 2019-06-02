@@ -3,7 +3,6 @@ package dbop
 import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/context"
-	"net/url"
 	"receipts/model"
 	"strings"
 )
@@ -11,8 +10,6 @@ import (
 func GetResultData(resultPara *model.ResultPara) context.Map {
 
 	var resultItemList []model.ResultItem
-
-	resultPara.Filter = decodeFilter(resultPara.Filter)
 
 	var sql = "SELECT * FROM result_" + resultPara.UserName + " WHERE "
 	sql += resultPara.Filter + ";"
@@ -140,20 +137,6 @@ func UpdateResultData(para *model.ResultPara) context.Map {
 		"status": "ok",
 		"message": hint + "成功，正在处理数据...",
 	}
-}
-
-func decodeFilter(filter string) string {
-
-	m, _ := url.ParseQuery(filter)
-
-	condition := ""
-
-	for k := range m {
-		condition = k
-		break
-	}
-
-	return condition
 }
 
 func getRequestIdSet(para *model.ResultPara) string {

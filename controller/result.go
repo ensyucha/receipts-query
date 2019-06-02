@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/kataras/iris"
-	"io/ioutil"
 	"receipts/auth"
 	"receipts/dbop"
 	"receipts/model"
@@ -34,7 +33,7 @@ func IndexResult(ctx iris.Context) {
 
 func ProcessResultData(ctx iris.Context) {
 
-	if resultPara, ok := getResultParaJSON(ctx, "获取归档请求参数"); ok {
+	if resultPara, ok := getResultParaJSON(ctx); ok {
 		if resultPara.Operation == "getdata" {
 			_, _ = ctx.JSON(dbop.GetResultData(resultPara))
 		} else if judgeUpdateOperation(resultPara.Operation) {
@@ -54,36 +53,22 @@ func judgeUpdateOperation(operation string) bool {
 }
 
 // 解析ResultPara的JSON对象
-func getResultParaJSON(ctx iris.Context, info string) (*model.ResultPara, bool) {
+func getResultParaJSON(ctx iris.Context) (*model.ResultPara, bool) {
 
-	resultPara := &model.ResultPara{}
 
-	b, err := ioutil.ReadAll(ctx.Request().Body)
+	filter := ctx.FormValue("filter")
+	filter = strings.Replace(filter, "@@@", "%", -1)
 
-	if err != nil{
-		_, _ = ctx.JSON(iris.Map{
-			"status":  "failed",
-			"message": info + "失败" + err.Error(),
-		})
+	rows, _ := strconv.Atoi(ctx.FormValue("rows"))
+	page, _ := strconv.Atoi(ctx.FormValue("page"))
 
-		return resultPara, false
-	}
-
-	paraList := strings.Split(string(b), "&")
-
-	resultPara.UserName = strings.Split(paraList[0], "=")[1]
-	resultPara.Filter = paraList[1][7:]
-	resultPara.ResultId = strings.Split(paraList[2], "=")[1]
-	resultPara.Operation = strings.Split(paraList[3], "=")[1]
-	resultPara.Rows, err = strconv.Atoi(strings.Split(paraList[4], "=")[1])
-	resultPara.Rows, err = strconv.Atoi(strings.Split(paraList[5], "=")[1])
-
-	if err != nil{
-		_, _ = ctx.JSON(iris.Map{
-			"status":  "failed",
-			"message": info + "失败" + err.Error(),
-		})
-		return resultPara, false
+	resultPara := &model.ResultPara{
+		UserName: ctx.FormValue("username"),
+		Filter: filter,
+		ResultId: ctx.FormValue("resultid"),
+		Operation: ctx.FormValue("operation"),
+		Rows: rows,
+		Page: page,
 	}
 
 	return resultPara, true
