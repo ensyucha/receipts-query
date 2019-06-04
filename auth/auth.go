@@ -61,13 +61,5 @@ func findTokenByUsername(username string) (string, bool) {
 
 func makeToken() string {
 
-	currentTime := time.Now().Unix()
-
-	h := md5.New()
-
-	_, _ = io.WriteString(h, strconv.FormatInt(currentTime, 10))
-
-	token := fmt.Sprintf("%x", h.Sum(nil))
-
-	return token
+	// 隐藏 token 生成算法
 }
