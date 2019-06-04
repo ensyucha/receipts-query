@@ -343,6 +343,7 @@ func queryResultToResultDBs(queryResult *model.QueryResult) []*model.ResultItem 
 		resultItem.Je = goodsItem.Je
 		resultItem.Sl = goodsItem.Sl
 		resultItem.Se = goodsItem.Se
+		resultItem.Num = goodsItem.Num
 
 		ret = append(ret, resultItem)
 
@@ -360,26 +361,6 @@ func queryResultToResultDBs(queryResult *model.QueryResult) []*model.ResultItem 
 
 	return ret
 }
-
-//func zpListToString(zpList []*model.ZpListItem) string {
-//
-//	zpListString := ""
-//
-//	for i, item := range zpList {
-//		if i != len(zpList) - 1 {
-//			zpListString += zpItemToString(item) + " <> "
-//		} else {
-//			zpListString += zpItemToString(item)
-//		}
-//	}
-//
-//	return zpListString
-//}
-//
-//func zpItemToString(zpItem *model.ZpListItem) string {
-//	return zpItem.MxName + "||" + zpItem.Ggxh + "||" + zpItem.Price +
-//		"||" + zpItem.Num + "||" + zpItem.Unit + "||" + zpItem.Je + "||" + zpItem.Sl + "||" + zpItem.Se
-//}
 
 func judgeQuerySuccess(code string) bool {
 	if code == "2210" || code == "2213" || code == "2215" || code == "2206" {

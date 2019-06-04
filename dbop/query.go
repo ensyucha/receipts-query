@@ -9,8 +9,8 @@ func AddResult(username string, results []*model.ResultItem) error {
 
 	stmt, err := db.Prepare("INSERT INTO result_" + username + "(ensured, sealed, respCode, respMsg, qd, fpdm, fphm, " +
 		"kprq, yzmSj, fpzt, fxqy, fplx, jqbm, jym, gfName, gfNsrsbh, gfAddressTel, gfBankZh, jshjL, sfName, sfNsrsbh, " +
-		"sfAddressTel, sfBankZh, bz, jshjU, mxName, ggxh, unit, price, je, sl, se, totalJe, totalSe, queryTime) " +
-		"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);")
+		"sfAddressTel, sfBankZh, bz, jshjU, mxName, ggxh, unit, price, je, sl, se, totalJe, totalSe, queryTime, num) " +
+		"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);")
 
 	if err != nil {
 		return err
@@ -24,7 +24,7 @@ func AddResult(username string, results []*model.ResultItem) error {
 			item.Fphm, item.Kprq, item.YzmSj, item.Fpzt, item.Fxqy, item.Fplx, item.Jqbm, item.Jym,
 			item.GfName, item.GfNsrsbh, item.GfAddressTel, item.GfBankZh, item.JshjL, item.SfName, item.SfNsrsbh,
 			item.SfAddressTel, item.SfBankZh, item.Bz, item.JshjU, item.MxName, item.Ggxh, item.Unit, item.Price,
-			item.Je, item.Sl, item.Se, item.TotalJe, item.TotalSe, item.QueryTime)
+			item.Je, item.Sl, item.Se, item.TotalJe, item.TotalSe, item.QueryTime, item.Num)
 
 		if err != nil {
 			return err

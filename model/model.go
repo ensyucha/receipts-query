@@ -106,6 +106,7 @@ type ResultItem struct {
 	TotalJe float64 `json:"totalJe"`
 	TotalSe float64 `json:"totalSe"`
 	QueryTime string `json:"queryTime"`
+	Num string `json:"num"`
 }
 
 func (item *ResultItem) DeepCopy() *ResultItem {

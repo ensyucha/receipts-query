@@ -202,8 +202,6 @@ function getCharCol(n) {
 
 function makeAllResultOutput(item) {
 
-    let zpList = item['zpListString'].split("||");
-
     return {
         "发票类型": item['fplx'],
         "发票代码": item['fpdm'],
@@ -217,21 +215,19 @@ function makeAllResultOutput(item) {
         "销方纳税人识别号": item['sfNsrsbh'],
         "销方地址及电话": item['sfAddressTel'],
         "销方银行及账号": item['sfBankZh'],
-        "不含税金额": zpList[5],
-        "税额": zpList[7],
-        "发票明细": zpList[0],
-        "规格型号": zpList[1],
-        "计量单位": zpList[4],
-        "数量": zpList[3],
-        "单价": zpList[2],
-        "税率": zpList[6],
+        "不含税金额": item['je'],
+        "税额": item['se'],
+        "发票明细": item['mxName'],
+        "规格型号": item['ggxh'],
+        "计量单位": item['unit'],
+        "数量": item['num'],
+        "单价": item['price'],
+        "税率": item['sl'],
         "发票备注": item['bz'],
     }
 }
 
-function makeSomeResultOutput(item) {
-
-    let zpList = item['zpListString'].split("||");
+function makeSomeResultOutput(index, item) {
 
     if (item['ensured'].indexOf("已") !== -1) {
         item['ensured'] = "已确认";
@@ -240,18 +236,17 @@ function makeSomeResultOutput(item) {
     }
 
     return {
-
+        "序号": index,
         "发票代码": item['fpdm'],
         "发票号码": item['fphm'],
         "开票日期": item['kprq'],
-        "销方纳税人识别号": item['sfNsrsbh'],
-        "销售方名称": item['sfName'],
-        "金额": zpList[5],
-        "税额": zpList[7],
+        "销方税号": item['sfNsrsbh'],
+        "销方名称": item['sfName'],
+        "金额": item['je'],
+        "税额": item['se'],
         "认证方式": item['ensured'],
         "确认/认证日期": item['yzmSj'],
         "发票类型": item['fplx'],
-        "发票状态": item['fpzt'],
     }
 }
 
@@ -1240,7 +1235,7 @@ function outputAllResult(username, ref) {
                     for (let i=0; i<rows.length; i++) {
                         let item = rows[i];
 
-                        jsonObjList.push(makeAllResultOutput(item))
+                        jsonObjList.push(makeAllResultOutput(item));
                     }
 
                     outputExcel(jsonObjList);
@@ -1288,7 +1283,7 @@ function outputSomeResult(username, filter) {
                     for (let i=0; i<rows.length; i++) {
                         let item = rows[i];
 
-                        jsonObjList.push(makeSomeResultOutput(item))
+                        jsonObjList.push(makeSomeResultOutput(i+1, item))
                     }
 
                     outputSomeExcel(jsonObjList);
@@ -1555,6 +1550,7 @@ let basicColInfo = [
     ['je','金额',true,'','center'],
     ['sl','税率',true,'60px','center'],
     ['se','税额',true,'','center'],
+    ['num','数量',true,'','center'],
     ['totalJe','发票总金额',true,'','center'],
     ['totalSe','发票总税额',true,'','center'],
     ['queryTime','查询时间',true,'90px','center']

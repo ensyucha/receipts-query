@@ -363,7 +363,8 @@ func createResultTable(username string) error {
 	se TEXT COMMENT '税额',
 	totalJe TEXT COMMENT '总金额',
 	totalSe TEXT COMMENT '总税额',
-	queryTime TEXT COMMENT '查询时间'
+	queryTime TEXT COMMENT '查询时间',
+	num TEXT COMMENT '数量'
 );`
 
 	_, err := db.Exec(sql)
