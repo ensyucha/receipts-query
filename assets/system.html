@@ -17,7 +17,10 @@
                     <button class="mdui-btn mdui-color-myself" onclick="updateUnusedUsage({{ .UnusedUsage }}, {{ .ApiCode }})">修改未分配额度</button>
                     <button class="mdui-btn mdui-color-myself" onclick="updateApiCode({{ .ApiCode }})">修改apicode</button>
                 </div>
-                <button class="mdui-btn mdui-color-red" onclick="addUser()">增加新用户</button>
+                <div>
+                    <button class="mdui-btn mdui-color-red" onclick="addUser()">增加新用户</button>
+                    <button class="mdui-btn mdui-color-red" onclick="addUser()">导出全量数据</button>
+                </div>
                 <div>
                     <button class="mdui-btn mdui-color-pink" onclick="showGuide('system.pdf')">使用说明</button>
                     <button class="mdui-btn mdui-color-pink" onclick="toLogout()">切换账号</button>
@@ -25,13 +28,14 @@
             </div>
             <div class="mdui-row">
                 <div class="mdui-table-fluid">
-                    <table class="mdui-table system-th-center">
+                    <table class="mdui-table">
                         <thead><tr>
                             <th class="system-td-center">用户</th>
                             <th class="system-td-center">昵称</th>
                             <th class="system-td-center">密码</th>
                             <th class="system-td-center">剩余额度</th>
-                            <th class="system-td-center">操作选项</th>
+                            <th class="system-td-center">累计使用</th>
+                            <th class="system-td-center system-td-op">操作选项</th>
                         </tr></thead>
                         <tbody id="main-body">
                         </tbody>

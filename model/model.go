@@ -6,6 +6,7 @@ type User struct {
 	NickName string `json:"nickname"`
 	Password string `json:"password"`
 	Usage int `json:"usage"`
+	Total int `json:"total"`
 }
 
 type System struct {
@@ -95,7 +96,21 @@ type ResultItem struct {
 	SfBankZh string `json:"sfBankZh"`
 	Bz string `json:"bz"`
 	JshjU string `json:"jshjU"`
-	ZpListString string `json:"zpListString"`
+	MxName string `json:"mxName"`
+	Ggxh string `json:"ggxh"`
+	Unit string `json:"unit"`
+	Price string `json:"price"`
+	Je string `json:"je"`
+	Sl string `json:"sl"`
+	Se string `json:"se"`
+	TotalJe float64 `json:"totalJe"`
+	TotalSe float64 `json:"totalSe"`
+	QueryTime string `json:"queryTime"`
+}
+
+func (item *ResultItem) DeepCopy() *ResultItem {
+	copyItem := *item
+	return &copyItem
 }
 
 type ResultPara struct {

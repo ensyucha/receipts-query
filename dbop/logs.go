@@ -4,11 +4,14 @@ import "time"
 
 func WriteLog(logType string, logInfo string, username string) {
 
-	logTime := time.Now().Format("2006-1-2 15:04:05")
+	if enableLogG == true {
 
-	stmt, _ := db.Prepare("INSERT INTO logs(logtime, logtype, loginfo, username) VALUES (?,?,?,?);")
+		logTime := time.Now().Format("2006-1-2 15:04:05")
 
-	defer stmt.Close()
+		stmt, _ := db.Prepare("INSERT INTO logs(logtime, logtype, loginfo, username) VALUES (?,?,?,?);")
 
-	_, _ = stmt.Exec(logTime, logType, logInfo, username)
+		defer stmt.Close()
+
+		_, _ = stmt.Exec(logTime, logType, logInfo, username)
+	}
 }

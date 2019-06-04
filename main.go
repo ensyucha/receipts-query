@@ -15,6 +15,6 @@ func main() {
 
 	log.Println("监听地址   : http://" + dbop.GetIP() + dbop.GetPort() + "\n")
 
-	// 启动服务器，监听端口 33333
+	// 启动服务器
 	log.Fatal(app.Run(iris.Addr(dbop.GetPort()), iris.WithoutStartupLog))
 }

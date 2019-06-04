@@ -34,7 +34,7 @@
     let rows = initTemp({{ .TempResult }});
 
     $('#dg').datagrid({
-        width:'1195px',
+        width:'1205px',
         remoteSort: false,
         rownumbers: true,
         fitColumns:true,
@@ -62,7 +62,7 @@
             {field:'bz',title:'不含税金额',width:'160px',align:'center', sortable:true,
                 sorter:function(a,b) { return (a < b ? 1 : -1); }
             },
-            {field:'jym',title:'校验码后6位',width:'160px',align:'center', sortable:true,
+            {field:'jym',title:'校验码后6位',width:'170px',align:'center', sortable:true,
                 sorter:function(a,b) { return (a < b ? 1 : -1); }
             },
         ]],

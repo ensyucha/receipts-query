@@ -5,11 +5,12 @@ import (
 )
 
 // 新增结果
-func AddResult(username string, result *model.ResultItem) error {
+func AddResult(username string, results []*model.ResultItem) error {
 
 	stmt, err := db.Prepare("INSERT INTO result_" + username + "(ensured, sealed, respCode, respMsg, qd, fpdm, fphm, " +
 		"kprq, yzmSj, fpzt, fxqy, fplx, jqbm, jym, gfName, gfNsrsbh, gfAddressTel, gfBankZh, jshjL, sfName, sfNsrsbh, " +
-		"sfAddressTel, sfBankZh, bz, jshjU, zpListString) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);")
+		"sfAddressTel, sfBankZh, bz, jshjU, mxName, ggxh, unit, price, je, sl, se, totalJe, totalSe, queryTime) " +
+		"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);")
 
 	if err != nil {
 		return err
@@ -17,13 +18,17 @@ func AddResult(username string, result *model.ResultItem) error {
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(result.Ensured, result.Sealed, result.RespCode, result.RespMsg, result.Qd, result.Fpdm,
-		result.Fphm, result.Kprq, result.YzmSj, result.Fpzt, result.Fxqy, result.Fplx, result.Jqbm, result.Jym,
-		result.GfName, result.GfNsrsbh, result.GfAddressTel, result.GfBankZh, result.JshjL, result.SfName, result.SfNsrsbh,
-		result.SfAddressTel, result.SfBankZh, result.Bz, result.JshjU, result.ZpListString)
+	for _, item := range results {
 
-	if err != nil {
-		return err
+		_, err = stmt.Exec(item.Ensured, item.Sealed, item.RespCode, item.RespMsg, item.Qd, item.Fpdm,
+			item.Fphm, item.Kprq, item.YzmSj, item.Fpzt, item.Fxqy, item.Fplx, item.Jqbm, item.Jym,
+			item.GfName, item.GfNsrsbh, item.GfAddressTel, item.GfBankZh, item.JshjL, item.SfName, item.SfNsrsbh,
+			item.SfAddressTel, item.SfBankZh, item.Bz, item.JshjU, item.MxName, item.Ggxh, item.Unit, item.Price,
+			item.Je, item.Sl, item.Se, item.TotalJe, item.TotalSe, item.QueryTime)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

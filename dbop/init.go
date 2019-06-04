@@ -16,10 +16,9 @@ var db *sql.DB
 
 var rateG float64
 var portG string
+var enableLogG bool
 
 func init() {
-
-	////////////////////////////////////////////////////////////
 
 	cfgByte, err := ioutil.ReadFile("./conf/conf.ini")
 
@@ -60,6 +59,20 @@ func init() {
 	}
 
 	rateG = rateNum
+
+	enableLog, err := cfg.GetValue("setting","log")
+
+	if err != nil || (enableLog != "enable" && enableLog != "disable") {
+		panic("请设置conf.ini中log，可选值：[enable, disable]")
+	}
+
+	if enableLog == "enable" {
+		enableLogG = true
+	} else if enableLog == "disable" {
+		enableLogG = false
+	}
+
+	//////////////////////////////////////////////////////////////////////
 
 	dbUsername, err := cfg.GetValue("database", "dbusername")
 

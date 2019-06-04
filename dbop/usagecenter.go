@@ -53,6 +53,29 @@ func UCUpdateUserUsage(user *model.User) error {
 	return nil
 }
 
+func UCAddUserHistoryTotal(username string, successQuery int) error {
+
+	stmt, err := db.Prepare("UPDATE users SET total=total+? WHERE username=?;")
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(successQuery, username)
+
+	if err != nil {
+		return err
+	}
+
+	sq := strconv.Itoa(successQuery)
+
+	WriteLog("system", "追加历史使用额度：" + sq, username)
+
+	return nil
+}
+
 // 根据用户名查询它的额度ok
 func UCGetUserUsage(user *model.User) (int, error) {
 

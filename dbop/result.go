@@ -30,9 +30,10 @@ func GetResultData(resultPara *model.ResultPara) context.Map {
 		rdb := model.ResultItem{}
 
 		err := result.Scan(&rdb.ResultId, &rdb.Ensured, &rdb.Sealed, &rdb.RespCode, &rdb.RespMsg, &rdb.Qd, &rdb.Fpdm,
-			&rdb.Fphm, &rdb.Kprq, &rdb.YzmSj, &rdb.Fpzt, &rdb.Fxqy, &rdb.Fplx, &rdb.Jqbm, &rdb.Jym,
-			&rdb.GfName, &rdb.GfNsrsbh, &rdb.GfAddressTel, &rdb.GfBankZh, &rdb.JshjL, &rdb.SfName, &rdb.SfNsrsbh,
-			&rdb.SfAddressTel, &rdb.SfBankZh, &rdb.Bz, &rdb.JshjU, &rdb.ZpListString)
+			&rdb.Fphm, &rdb.Kprq, &rdb.YzmSj, &rdb.Fpzt, &rdb.Fxqy, &rdb.Fplx, &rdb.Jqbm, &rdb.Jym, &rdb.GfName,
+			&rdb.GfNsrsbh, &rdb.GfAddressTel, &rdb.GfBankZh, &rdb.JshjL, &rdb.SfName, &rdb.SfNsrsbh, &rdb.SfAddressTel,
+			&rdb.SfBankZh, &rdb.Bz, &rdb.JshjU, &rdb.MxName, &rdb.Ggxh, &rdb.Unit, &rdb.Price, &rdb.Je, &rdb.Sl, &rdb.Se,
+			&rdb.TotalJe, &rdb.TotalSe, &rdb.QueryTime)
 
 		if err != nil {
 			return iris.Map{

@@ -123,8 +123,16 @@ ol#result-col li.placeholder:before {
 }
 
 .system-td-center {
-    width: 140px;
     text-align: center !important;
+}
+
+.system-td-center button {
+    width: 30px !important;
+}
+
+.system-td-op {
+    padding-left: 0 !important;
+    width: 250px !important;
 }
 
 .result-dialog-content {

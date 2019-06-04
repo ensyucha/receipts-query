@@ -415,14 +415,20 @@ function query(usage) {
         mdui.confirm('剩余额度：' + usage + '<br />查询发票数量：' + queryrows.length + '<br />', "", function() {
 
             mdui.snackbar({
-                message: '查询中，请稍等', // 显示信息给用户
+                message: '查询中，请稍后...', // 显示信息给用户
                 position: "top",
-                timeout: 500,
+                timeout: 10000,
+            });
+
+            mdui.snackbar({
+                message: '如果出现该提示，说明API提供方出现问题，导致部分发票查询过慢<br />再等待20秒，20秒后将主动结束本次查询！', // 显示信息给用户
+                position: "top",
+                timeout: 25000,
             });
 
             $.ajax({ // 发起 ajax 请求，进行密码判断
                 type: "POST",
-                timeout: 20000,
+                timeout: 35000,
                 url: "/query",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
@@ -431,14 +437,7 @@ function query(usage) {
                 }),
                 success: function (message) {
 
-                    mdui.snackbar({
-                        message: message['status'] + " : " + message['message'], // 显示信息给用户
-                        position: "top",
-                        timeout: 1000,
-                        onClose: function () {
-                            toTemp();
-                        }
-                    });
+                    toTemp();
                 },
                 error: function (message) {
                     toTemp();
@@ -844,7 +843,8 @@ function listAllUser() {
                     "username": userList[i].username,
                     "nickname": userList[i].nickname,
                     "password": userList[i].password,
-                    "usage": userList[i].usage
+                    "usage": userList[i].usage,
+                    "total": userList[i].total
                 };
                 listOneUser(userObj);
             }
@@ -869,6 +869,7 @@ function listOneUser(userObj) {
                 <td class="system-td-center">` + userObj.nickname + `</td>
                 <td class="system-td-center">` + userObj.password + `</td>
                 <td class="system-td-center">` + userObj.usage + `</td>
+                <td class="system-td-center">` + userObj.total + `</td>
                 <td class="system-td-center">
                     <button class="mdui-btn mdui-color-red" onclick="editUser('` + userObjStr + `')">编辑</button>
                     <button class="mdui-btn mdui-color-red" onclick="removeUser('` + userObjStr + `')">删除</button>
@@ -1537,15 +1538,24 @@ let basicColInfo = [
     ['gfNsrsbh','购方识别号',true,'170px','center'],
     ['gfAddressTel','购方联系地址',true,'','center'],
     ['gfBankZh','购方开户行',true,'','center'],
-    ['fxqy','风险企业验证',true,'92px','center'],
+    ['fxqy','风险企业验证',true,'105px','center'],
     ['sfName','销售方名称',true,'','center'],
     ['sfNsrsbh','销售方识别号',true,'170px','center'],
     ['sfAddressTel','销售方联系地址',true,'','center'],
     ['sfBankZh','销售方开户行',true,'','center'],
-    ['jshjL','价税合计',true,'145px','center'],
+    ['jshjL','价税合计',true,'','center'],
     ['jshjU','价税合计(大写)',true,'','center'],
-    ['qd','清单',true,'80px','center'],
+    ['qd','清单',true,'60px','center'],
     ['bz','备注',true,'','center'],
-    ['zpListString','商品列表',true,'','center'],
-    ['jym','校验码',true,'180px','center']
+    ['jym','校验码',true,'180px','center'],
+    ['mxName','商品名称',true,'','center'],
+    ['ggxh','规格型号',true,'','center'],
+    ['unit','单位',true,'60px','center'],
+    ['price','单价',true,'','center'],
+    ['je','金额',true,'','center'],
+    ['sl','税率',true,'60px','center'],
+    ['se','税额',true,'','center'],
+    ['totalJe','发票总金额',true,'','center'],
+    ['totalSe','发票总税额',true,'','center'],
+    ['queryTime','查询时间',true,'90px','center']
 ];

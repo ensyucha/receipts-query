@@ -22,7 +22,7 @@ var tempQueryResultMap = make(map[string][]*model.QueryResult)
 
 func init() {
 	client = &http.Client{
-		Timeout: time.Second * 20,
+		Timeout: 30 * time.Second,
 	}
 }
 
@@ -114,7 +114,7 @@ func processQueryArray(queryArray *model.QueryArray, user *model.User) context.M
 	}
 
 	qinfo := fmt.Sprintf("查询发票数量：%d，协程数量：%d \n", queryNum, goroutineNum)
-	dbop.WriteLog("user", qinfo,user.Username)
+	dbop.WriteLog("user", qinfo, user.Username)
 
 	waitGroup.Add(queryNum)
 
@@ -128,10 +128,13 @@ func processQueryArray(queryArray *model.QueryArray, user *model.User) context.M
 	for {
 		select {
 		case queryResult := <- queryResultChan:
+			//log.Println(queryResult)
+
 			tempQueryResultList = append(tempQueryResultList, queryResult)
+
 			if judgeQuerySuccess(queryResult.RespCode) {
 
-				err = dbop.AddResult(user.Username, queryResultToResultDB(queryResult))
+				err = dbop.AddResult(user.Username, queryResultToResultDBs(queryResult))
 
 				if err != nil {
 					return iris.Map{
@@ -154,6 +157,12 @@ func processQueryArray(queryArray *model.QueryArray, user *model.User) context.M
 					log.Fatal("【严重错误！】查询已经成功，但额度更新失败 | 用户名：" +
 						user.Username + " | 错误描述：" + err.Error())
 				} else {
+					err = dbop.UCAddUserHistoryTotal(user.Username, successQuery)
+
+					if err != nil {
+						panic("更新历史使用额度失败：" + err.Error())
+					}
+
 					tempQueryResultMap[user.Username] = tempQueryResultList
 					return iris.Map{
 						"status": "ok",
@@ -186,8 +195,8 @@ func doQuery(apiCode string, queryChan chan *model.Query, queryResultChan chan *
 
 			if err != nil {
 				queryResult.RespCode = "3000"
-				queryResult.RespMsg = "系统繁忙，请稍后重试"
-				dbop.WriteLog("system", "client.Do失败：" + err.Error(), "system")
+				queryResult.RespMsg = "API请求超时，请稍后再试"
+				dbop.WriteLog("system", "3000：" + err.Error(), "system")
 			} else {
 				body, err := ioutil.ReadAll(resp.Body)
 
@@ -195,11 +204,18 @@ func doQuery(apiCode string, queryChan chan *model.Query, queryResultChan chan *
 					queryResult.RespCode = "3001"
 					queryResult.RespMsg = "读取结果二进制失败：" + err.Error()
 				} else {
-					err = json.Unmarshal(body, queryResult)
+					if len(body) != 0 {
+						err = json.Unmarshal(body, queryResult)
 
-					if err != nil {
-						queryResult.RespCode = "3002"
+						if err != nil {
+							queryResult.RespCode = "3002"
+							queryResult.RespMsg = `<span style="color:#AD1457;">Client请求超时，请稍后再试</span>`
+							dbop.WriteLog("system", "3002："+err.Error(), "system")
+						}
+					} else {
+						queryResult.RespCode = "3003"
 						queryResult.RespMsg = `<span style="color:#AD1457;">联系管理员检查系统额度</span>`
+						dbop.WriteLog("system", "3003：系统额度为0", "system")
 					}
 				}
 			}
@@ -219,8 +235,6 @@ func makeQueryRequest(query *model.Query, apiCode string) *http.Request {
 	targetURL := "http://fpcyapi.market.alicloudapi.com/invoice/query?" +
 		"fpdm=" + query.Fpdm + "&" + "fphm=" + query.Fphm + "&" + "kprq=" + query.Kprq + "&" +
 		"je="   + query.Je   + "&" + "jym=" + query.Jym
-
-
 
 	req, _ := http.NewRequest("GET", targetURL, nil) // 新建请求
 
@@ -248,7 +262,9 @@ func getQueryArrayJSON(ctx iris.Context, info string) (*model.QueryArray, bool) 
 	return queryArrayItem, true
 }
 
-func queryResultToResultDB(queryResult *model.QueryResult) *model.ResultItem {
+func queryResultToResultDBs(queryResult *model.QueryResult) []*model.ResultItem {
+
+	var ret []*model.ResultItem
 
 	resultDB := &model.ResultItem{}
 
@@ -311,30 +327,59 @@ func queryResultToResultDB(queryResult *model.QueryResult) *model.ResultItem {
 	resultDB.SfBankZh = queryResult.Data.SfBankZh
 	resultDB.Bz = queryResult.Data.Bz
 	resultDB.JshjU = queryResult.Data.JshjU
-	resultDB.ZpListString = zpListToString(queryResult.Data.ZpList)
+	resultDB.QueryTime = time.Now().Format("2006-1-2")
 
-	return resultDB
-}
+	var totalJe float64 = 0
+	var totalSe float64 = 0
 
-func zpListToString(zpList []*model.ZpListItem) string {
+	for _, goodsItem := range queryResult.Data.ZpList {
 
-	zpListString := ""
+		resultItem := resultDB.DeepCopy()
 
-	for i, item := range zpList {
-		if i != len(zpList) - 1 {
-			zpListString += zpItemToString(item) + " <> "
-		} else {
-			zpListString += zpItemToString(item)
-		}
+		resultItem.MxName = goodsItem.MxName
+		resultItem.Ggxh = goodsItem.Ggxh
+		resultItem.Unit = goodsItem.Unit
+		resultItem.Price = goodsItem.Price
+		resultItem.Je = goodsItem.Je
+		resultItem.Sl = goodsItem.Sl
+		resultItem.Se = goodsItem.Se
+
+		ret = append(ret, resultItem)
+
+		itemJe, _ := strconv.ParseFloat(goodsItem.Je, 64)
+		itemSe, _ := strconv.ParseFloat(goodsItem.Se, 64)
+
+		totalJe += itemJe
+		totalSe += itemSe
 	}
 
-	return zpListString
+	for _, item := range ret {
+		item.TotalJe = totalJe
+		item.TotalSe = totalSe
+	}
+
+	return ret
 }
 
-func zpItemToString(zpItem *model.ZpListItem) string {
-	return zpItem.MxName + "||" + zpItem.Ggxh + "||" + zpItem.Price +
-		"||" + zpItem.Num + "||" + zpItem.Unit + "||" + zpItem.Je + "||" + zpItem.Sl + "||" + zpItem.Se
-}
+//func zpListToString(zpList []*model.ZpListItem) string {
+//
+//	zpListString := ""
+//
+//	for i, item := range zpList {
+//		if i != len(zpList) - 1 {
+//			zpListString += zpItemToString(item) + " <> "
+//		} else {
+//			zpListString += zpItemToString(item)
+//		}
+//	}
+//
+//	return zpListString
+//}
+//
+//func zpItemToString(zpItem *model.ZpListItem) string {
+//	return zpItem.MxName + "||" + zpItem.Ggxh + "||" + zpItem.Price +
+//		"||" + zpItem.Num + "||" + zpItem.Unit + "||" + zpItem.Je + "||" + zpItem.Sl + "||" + zpItem.Se
+//}
 
 func judgeQuerySuccess(code string) bool {
 	if code == "2210" || code == "2213" || code == "2215" || code == "2206" {

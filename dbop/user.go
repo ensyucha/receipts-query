@@ -265,7 +265,8 @@ func ListUser() context.Map {
 
 		var userItem model.User
 
-		err = userResult.Scan(&userItem.UserId, &userItem.Username, &userItem.NickName, &userItem.Password, &userItem.Usage)
+		err = userResult.Scan(&userItem.UserId, &userItem.Username, &userItem.NickName, &userItem.Password,
+			&userItem.Usage, &userItem.Total)
 
 		if err != nil {
 			return iris.Map{
@@ -327,33 +328,42 @@ func CheckUser(user *model.User) (bool, string, error) {
 func createResultTable(username string) error {
 
 	sql := `CREATE TABLE IF NOT EXISTS result_` + username + ` (
-	resultid INTEGER PRIMARY KEY AUTO_INCREMENT,
-	ensured TEXT,
-	sealed TEXT,
-	respCode TEXT,
-	respMsg TEXT,
-	qd TEXT,
-	fpdm TEXT,
-	fphm TEXT,
-	kprq TEXT,
-	yzmSj TEXT,
-	fpzt TEXT,
-	fxqy TEXT,
-	fplx TEXT,
-	jqbm TEXT,
-	jym TEXT,
-	gfName TEXT,
-	gfNsrsbh TEXT,
-	gfAddressTel TEXT,
-	gfBankZh TEXT,
-	jshjL TEXT,
-	sfName TEXT,
-	sfNsrsbh TEXT,
-	sfAddressTel TEXT,
-	sfBankZh TEXT,
-	bz TEXT,
-	jshjU TEXT,
-	zpListString TEXT
+	resultid INTEGER PRIMARY KEY AUTO_INCREMENT COMMENT '查询结果id',
+	ensured TEXT COMMENT '确认状态',
+	sealed TEXT COMMENT '封存状态',
+	respCode TEXT COMMENT '查询结果代号',
+	respMsg TEXT COMMENT '查询结果',
+	qd TEXT COMMENT '是否有清单',
+	fpdm TEXT COMMENT '发票代码',
+	fphm TEXT COMMENT '发票号码',
+	kprq TEXT COMMENT '开票日期',
+	yzmSj TEXT COMMENT '验证时间',
+	fpzt TEXT COMMENT '发票状态',
+	fxqy TEXT COMMENT '风险企业验证',
+	fplx TEXT COMMENT '发票类型',
+	jqbm TEXT COMMENT '机器编码',
+	jym TEXT COMMENT '校验码',
+	gfName TEXT COMMENT '供应方名称',
+	gfNsrsbh TEXT COMMENT '供应方识别号',
+	gfAddressTel TEXT COMMENT '供应方联系方式',
+	gfBankZh TEXT COMMENT '供应方开户行',
+	jshjL TEXT COMMENT '价税合计',
+	sfName TEXT COMMENT '销售方名称',
+	sfNsrsbh TEXT COMMENT '销售方识别号',
+	sfAddressTel TEXT COMMENT '销售方联系方式',
+	sfBankZh TEXT COMMENT '销售方开户行',
+	bz TEXT COMMENT '备注信息',
+	jshjU TEXT COMMENT '价税合计(大写)',
+	mxName TEXT COMMENT '商品名',
+	ggxh TEXT COMMENT '规格型号',
+	unit TEXT COMMENT '单位',
+	price TEXT COMMENT '单价',
+	je TEXT COMMENT '金额',
+	sl TEXT COMMENT '税率',
+	se TEXT COMMENT '税额',
+	totalJe TEXT COMMENT '总金额',
+	totalSe TEXT COMMENT '总税额',
+	queryTime TEXT COMMENT '查询时间'
 );`
 
 	_, err := db.Exec(sql)
