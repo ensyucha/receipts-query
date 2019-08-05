@@ -113,3 +113,31 @@ func getSystemJSON(ctx iris.Context, info string) (*model.System, bool) {
 
 	return systemItem, true
 }
+
+// 导出全部数据
+func OutputAllData(ctx iris.Context) {
+
+	auth.CheckToken(ctx)
+	auth.CheckAdmin(ctx)
+
+	err := dbop.BuildAllDataExcel()
+
+	if err != nil {
+		_, _ = ctx.JSON(iris.Map{
+			"status": "failed",
+			"message": "导出全量数据失败：" + err.Error(),
+		})
+		return
+	}
+
+	file := "./全量数据.xls"
+	err = ctx.SendFile(file, "全量数据.xls")
+
+	if err != nil {
+		_, _ = ctx.JSON(iris.Map{
+			"status": "failed",
+			"message": "下载全量数据失败：" + err.Error(),
+		})
+		return
+	}
+}

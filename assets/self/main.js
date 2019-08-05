@@ -227,6 +227,20 @@ function makeAllResultOutput(item) {
     }
 }
 
+function makeErrorResultOutput(item) {
+
+    return {
+        "发票代码": item['fpdm'],
+        "发票号码": item['fphm'],
+        "开票日期": item['kprq'],
+        "不含税金额": item['bz'],
+    }
+}
+
+function outputAllData() {
+    window.location.href = "/system/outputalldata";
+}
+
 function makeSomeResultOutput(index, item) {
 
     if (item['ensured'].indexOf("已") !== -1) {
@@ -1204,6 +1218,18 @@ function removeResult(username) {
     },function () {},{confirmText:"确认删除",cancelText:"取消",modal:true,closeOnEsc:false});
 }
 
+function outputErrorResult(errorItems) {
+
+    let jsonObjList = [];
+
+    for (let i=0; i<errorItems.length; i++) {
+        let item = errorItems[i];
+        jsonObjList.push(makeErrorResultOutput(item));
+    }
+
+    outputExcel(jsonObjList);
+}
+
 function outputAllResult(username, ref) {
 
     let filterString = "";
@@ -1252,7 +1278,7 @@ function outputAllResult(username, ref) {
     });
 }
 
-function outputSomeResult(username, filter) {
+function outputSomeResult(username, ref) {
 
     let filterString = "";
 
@@ -1298,6 +1324,18 @@ function outputSomeResult(username, filter) {
             });
         }
     });
+}
+
+function getErrorItems(rows) {
+    let errorItems = [];
+
+    for (let i=0; i< rows.length; i++) {
+        if (rows[i]['status'].indexOf("失败") !== -1) {
+            errorItems.push(rows[i]);
+        }
+    }
+
+    return errorItems;
 }
 
 function updateResult(username, operation) {

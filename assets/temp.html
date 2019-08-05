@@ -18,10 +18,11 @@
                     查询成功会扣除额度并归档，查询失败不会扣除额度和归档
                 </div>
                 <div>
+                    <button class="mdui-btn mdui-color-pink temp-btn" onclick="doOutputErrorResult()">下载失败发票</button>
                     <button class="mdui-btn mdui-color-pink temp-btn" onclick="toResult()">进入归档</button>
                     <button class="mdui-btn mdui-color-pink temp-btn" onclick="toQuery()">返回查询</button>
-                    <button class="mdui-btn mdui-color-pink temp-btn" onclick="toLogout()">切换账号</button>
                 </div>
+                <a href="" download="查询失败发票导出.xls" id="hf"></a>
             </div>
 
             <table id="dg">
@@ -32,6 +33,12 @@
 
 <script>
     let rows = initTemp({{ .TempResult }});
+
+    let errorItems = getErrorItems(rows);
+
+    function doOutputErrorResult() {
+        outputErrorResult(errorItems);
+    }
 
     $('#dg').datagrid({
         width:'1205px',

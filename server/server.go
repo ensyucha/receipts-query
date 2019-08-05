@@ -50,6 +50,7 @@ func registerRouter(app *iris.Application) {
 	// 系统管理路由
 	app.Get("/system", controller.IndexSystem)
 	app.Get("/system/user", controller.ListUser)
+	app.Get("/system/outputalldata", controller.OutputAllData)
 	app.Post("/system/user", controller.AddUser)
 	app.Put("/system/user", controller.UpdateUser)
 	app.Delete("/system/user", controller.RemoveUser)

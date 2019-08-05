@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/kataras/iris"
+	"receipts/auth"
 	"receipts/dbop"
 	"receipts/model"
 	"strconv"
@@ -10,7 +11,7 @@ import (
 
 func IndexResult(ctx iris.Context) {
 
-	//auth.CheckToken(ctx)
+	auth.CheckToken(ctx)
 
 	username := ctx.GetCookie("username")
 	nickname := ctx.GetCookie("nickname")
